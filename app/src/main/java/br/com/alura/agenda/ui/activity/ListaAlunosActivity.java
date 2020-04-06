@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,6 +34,12 @@ public class ListaAlunosActivity extends AppCompatActivity {
         configuraLista();
         dao.salva(new Aluno("Lucas", "4564655", "lucas@gmail.com"));
         dao.salva(new Aluno("Jhow", "4564655", "show@gmail.com"));
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.activity_lista_alunos_menu,menu);
 
     }
 
@@ -66,20 +74,28 @@ public class ListaAlunosActivity extends AppCompatActivity {
         ListView listaDeAlunos = findViewById(R.id.activity_lista_alunos_listview);
         configuraAdapter(listaDeAlunos);
         configuraListenerDeCliquePorItem(listaDeAlunos);
-        configuraListenerDeCliqueLongoPorItem(listaDeAlunos);
+        registerForContextMenu(listaDeAlunos);
 
 
     }
 
-    private void configuraListenerDeCliqueLongoPorItem(ListView listaDeAlunos) {
-        listaDeAlunos.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int posicao, long id) {
-                Aluno alunoEscolhido = (Aluno) adapterView.getItemAtPosition(posicao);
-                remove(alunoEscolhido);
-                return true;
-            }
-        });
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.activity_lista_alunos_menu_remover)
+        {
+            AdapterView.AdapterContextMenuInfo menuInfo =
+                    (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            Aluno alunoEscolhido = adapter.getItem(menuInfo.position);
+            remove(alunoEscolhido);
+        }
+
+        if (itemId == R.id.activity_lista_alunos_menu_sair){
+
+            finish();
+        }
+
+        return super.onContextItemSelected(item);
     }
 
     private void remove(Aluno aluno) {
